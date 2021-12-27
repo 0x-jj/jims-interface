@@ -8,6 +8,43 @@ import { useWeb3React } from '@web3-react/core';
 import Web3ReactManager from './network/Web3Manager';
 import { Contract } from '@ethersproject/contracts';
 import { ABI, address as mintContractAddress } from './mintContract';
+import { Drawer } from 'antd';
+import { JimPreview } from './JimPreview';
+
+const EXAMPLE_METADATA = {
+  name: 'Jim #1',
+  description:
+    'A collection of 1024 unique Jims, made with <3 by FingerprintsDAO.',
+  image: 'ipfs://QmeUf98Zwrm7EzSeWwtzmFDb8tWLi2DeDRBrdoGgwAEpux/1.png',
+  dna: '3296ea3808c6c9ede4d656e875192d40fc313a2f',
+  edition: 1,
+  attributes: [
+    {
+      trait_type: 'Background',
+      value: 'Void',
+    },
+    {
+      trait_type: 'Body',
+      value: 'Jim Bedtime',
+    },
+    {
+      trait_type: 'Mouth',
+      value: 'Fingerprints',
+    },
+    {
+      trait_type: 'Head',
+      value: 'Deafbeef Cap',
+    },
+    {
+      trait_type: 'Eyes',
+      value: '3d',
+    },
+    {
+      trait_type: 'Accessory',
+      value: 'None',
+    },
+  ],
+};
 
 function shortenAddress(address, chars = 4) {
   return `${address.substring(0, chars + 2)}...${address.substring(
@@ -20,6 +57,7 @@ function App() {
   const { account, library } = useActiveWeb3React();
   const [mintCount, setMintCount] = useState(0);
   const [amountToMint, setAmountToMint] = useState(1);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   useEffect(() => {
     async function fetch() {
@@ -47,19 +85,29 @@ function App() {
   return (
     <Web3ReactManager>
       <div className="App">
-        {/* {Array.from(Array(50)).map((x, i) => {
-          return <div class="snowflake"></div>;
-        })} */}
+        <div className={'top-right'}>
+          {active && (
+            <button
+              className={'view-jims-button'}
+              onClick={(e) => {
+                e.preventDefault();
+                setDrawerVisible(true);
+              }}
+            >
+              View my Jims
+            </button>
+          )}
 
-        <button
-          className={'connect-button'}
-          onClick={(e) => {
-            e.preventDefault();
-            activate(injected);
-          }}
-        >
-          {active ? `Connected: ${shortenAddress(account)}` : 'Connect'}
-        </button>
+          <button
+            className={'connect-button'}
+            onClick={(e) => {
+              e.preventDefault();
+              activate(injected);
+            }}
+          >
+            {active ? `Connected: ${shortenAddress(account)}` : 'Connect'}
+          </button>
+        </div>
         <header
           className="App-header"
           style={{ backgroundImage: `url(${bg})` }}
@@ -86,10 +134,9 @@ function App() {
           <p>
             <span>
               <input
-                className="input"
+                className="amount-input"
                 type="number"
-                max="3"
-                placeholder="amount (up to 3)"
+                placeholder="Amount (up to 10)"
                 onChange={(e) => {
                   e.preventDefault();
                   setAmountToMint(e.target.value);
@@ -97,8 +144,28 @@ function App() {
               ></input>
             </span>
           </p>
-          <p className="stroke">{103}/1024 minted</p>
+          <p className="stroke">Current Price: 0.069 ETH</p>
+          <p className="stroke">{103}/2048 minted</p>
         </header>
+        <Drawer
+          placement={'left'}
+          closable={false}
+          onClose={() => {
+            setDrawerVisible(false);
+          }}
+          contentWrapperStyle={{
+            height: '75%',
+            top: '12.5%',
+          }}
+          bodyStyle={{ fontFamily: 'Schoolbell', fontSize: '14px' }}
+          visible={drawerVisible}
+        >
+          <JimPreview metadata={EXAMPLE_METADATA} />
+          <JimPreview metadata={EXAMPLE_METADATA} />
+          <JimPreview metadata={EXAMPLE_METADATA} />
+          <JimPreview metadata={EXAMPLE_METADATA} />
+          <JimPreview metadata={EXAMPLE_METADATA} />
+        </Drawer>
       </div>
     </Web3ReactManager>
   );
