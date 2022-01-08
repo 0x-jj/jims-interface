@@ -1,49 +1,20 @@
-import logo from './jimlogo.png';
-import bg from './jimsbg.jpg';
-import './App.css';
-import { useEffect, useState } from 'react';
-import { useActiveWeb3React } from './network/connectors';
-import { injected } from './network/connectors';
-import { useWeb3React } from '@web3-react/core';
-import Web3ReactManager from './network/Web3Manager';
-import { Contract } from '@ethersproject/contracts';
-import { ABI, address as mintContractAddress } from './mintContract';
-import { Drawer } from 'antd';
-import { JimPreview } from './JimPreview';
+import logo from "./jimlogo.png";
+import bg from "./jimsbg.jpg";
+import "./App.css";
+import { useEffect, useState } from "react";
+import { useActiveWeb3React } from "./network/connectors";
+import { injected } from "./network/connectors";
+import { useWeb3React } from "@web3-react/core";
+import Web3ReactManager from "./network/Web3Manager";
+import { Contract } from "@ethersproject/contracts";
+import { ABI, address as mintContractAddress } from "./mintContract";
+import { Drawer } from "antd";
+import { JimPreview } from "./JimPreview";
+import axios from "axios";
 
-const EXAMPLE_METADATA = {
-  name: 'Jim #1',
-  description:
-    'A collection of 1024 unique Jims, made with <3 by FingerprintsDAO.',
-  image: 'ipfs://QmeUf98Zwrm7EzSeWwtzmFDb8tWLi2DeDRBrdoGgwAEpux/1.png',
-  dna: '3296ea3808c6c9ede4d656e875192d40fc313a2f',
-  edition: 1,
-  attributes: [
-    {
-      trait_type: 'Background',
-      value: 'Void',
-    },
-    {
-      trait_type: 'Body',
-      value: 'Jim Bedtime',
-    },
-    {
-      trait_type: 'Mouth',
-      value: 'Fingerprints',
-    },
-    {
-      trait_type: 'Head',
-      value: 'Deafbeef Cap',
-    },
-    {
-      trait_type: 'Eyes',
-      value: '3d',
-    },
-    {
-      trait_type: 'Accessory',
-      value: 'None',
-    },
-  ],
+const METADATA_PREFIX = "QmcnnBXi99renVhnr3wX14TEj3k2EiGHFnn1gQGJhZBmeX";
+const getTokenUri = (id) => {
+  return `https://gateway.pinata.cloud/ipfs/${METADATA_PREFIX}/${id}`;
 };
 
 function shortenAddress(address, chars = 4) {
@@ -58,6 +29,7 @@ function App() {
   const [mintCount, setMintCount] = useState(0);
   const [amountToMint, setAmountToMint] = useState(1);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [jimsOwned, setJimsOwned] = useState([]);
 
   useEffect(() => {
     async function fetch() {
@@ -65,12 +37,24 @@ function App() {
         const contract = new Contract(mintContractAddress, ABI, library);
         const mintCount = await contract.totalSupply();
         setMintCount(mintCount.toNumber());
+
+        if (active) {
+          // const owned = await contract.getJimsOwned(account)
+          const owned = [1, 65, 123, 999, 48, 12, 412];
+          const ownedMetadata = await Promise.all(
+            owned.map(async (id) => {
+              const resp = await axios.get(getTokenUri(id));
+              return resp.data;
+            })
+          );
+          setJimsOwned(ownedMetadata);
+        }
       } catch (e) {
         console.log(e);
       }
     }
     fetch();
-  }, [library]);
+  }, [library, active]);
 
   const handleMint = async () => {
     const mintContract = new Contract(
@@ -85,10 +69,10 @@ function App() {
   return (
     <Web3ReactManager>
       <div className="App">
-        <div className={'top-right'}>
+        <div className={"top-right"}>
           {active && (
             <button
-              className={'view-jims-button'}
+              className={"view-jims-button"}
               onClick={(e) => {
                 e.preventDefault();
                 setDrawerVisible(true);
@@ -99,13 +83,13 @@ function App() {
           )}
 
           <button
-            className={'connect-button'}
+            className={"connect-button"}
             onClick={(e) => {
               e.preventDefault();
               activate(injected);
             }}
           >
-            {active ? `Connected: ${shortenAddress(account)}` : 'Connect'}
+            {active ? `Connected: ${shortenAddress(account)}` : "Connect"}
           </button>
         </div>
         <header
@@ -125,7 +109,7 @@ function App() {
                 }
               }}
             >
-              {active ? 'Mint' : 'Connect Wallet!'}
+              {active ? "Mint" : "Connect Wallet!"}
               {Array.from(Array(6)).map((x, i) => {
                 return <div class="stroke parrot"></div>;
               })}
@@ -144,27 +128,42 @@ function App() {
               ></input>
             </span>
           </p>
-          <p className="stroke">Current Price: 0.069 ETH</p>
-          <p className="stroke">{103}/2048 minted</p>
+          <p className="stroke">Price: 0.069 ETH</p>
+          <div style={{ fontSize: "30px" }}>
+            <p className="stroke">Mints remaining: {856}/1526</p>
+            <p
+              className="stroke"
+              style={{
+                fontSize: "24px",
+                background: "#1890ff",
+                padding: "0px 6px",
+              }}
+            >
+              Jims is not an investment. This project is a fun,
+              community-building NFT! By minting, you understand this.
+            </p>
+          </div>
         </header>
         <Drawer
-          placement={'left'}
+          placement={"left"}
           closable={false}
           onClose={() => {
             setDrawerVisible(false);
           }}
           contentWrapperStyle={{
-            height: '75%',
-            top: '12.5%',
+            height: "75%",
+            top: "12.5%",
           }}
-          bodyStyle={{ fontFamily: 'Schoolbell', fontSize: '14px' }}
+          bodyStyle={{ fontFamily: "Schoolbell", fontSize: "14px" }}
           visible={drawerVisible}
         >
-          <JimPreview metadata={EXAMPLE_METADATA} />
-          <JimPreview metadata={EXAMPLE_METADATA} />
-          <JimPreview metadata={EXAMPLE_METADATA} />
-          <JimPreview metadata={EXAMPLE_METADATA} />
-          <JimPreview metadata={EXAMPLE_METADATA} />
+          {jimsOwned.length !== 0 &&
+            jimsOwned.map((metadata) => <JimPreview metadata={metadata} />)}
+          {jimsOwned.length === 0 && (
+            <p style={{ fontSize: "24px", textAlign: "center" }}>
+              No jims detected... mint!
+            </p>
+          )}
         </Drawer>
       </div>
     </Web3ReactManager>

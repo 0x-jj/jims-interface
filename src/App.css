@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  font-family: 'Schoolbell';
+  font-family: "Schoolbell";
 }
 
 .App-logo {
@@ -34,7 +34,7 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  background: var('#2c3e50');
+  background: var("#2c3e50");
 }
 
 button {
@@ -43,7 +43,7 @@ button {
   border: 3px solid #fff;
   border-radius: 50px;
   padding: 0.8rem 2rem;
-  font: 24px 'Schoolbell', sans-serif;
+  font: 24px "Schoolbell", sans-serif;
   outline: none;
   cursor: pointer;
   position: relative;
@@ -59,52 +59,52 @@ button {
   color: transparent;
 }
 .button-parrot .parrot:before {
-  content: '!croak';
+  content: "!croak";
 }
 .button-parrot .parrot:nth-child(1) {
   top: -30px;
   left: -40px;
-  font: 12px/1 'Schoolbell', sans-serif;
+  font: 12px/1 "Schoolbell", sans-serif;
   transform: rotate(-20deg);
   animation-duration: 0.5s;
 }
 .button-parrot .parrot:nth-child(2) {
-  font: 12px/1 'Schoolbell', sans-serif;
+  font: 12px/1 "Schoolbell", sans-serif;
   right: -40px;
   top: -20px;
   transform: rotate(15deg);
   animation-duration: 0.3s;
 }
 .button-parrot .parrot:nth-child(3) {
-  font: 16px/1 'Schoolbell', sans-serif;
+  font: 16px/1 "Schoolbell", sans-serif;
   top: -60px;
   left: 15px;
   transform: rotate(10deg);
   animation-duration: 1s;
 }
 .button-parrot .parrot:nth-child(4) {
-  font: 18px/1 'Schoolbell', sans-serif;
+  font: 18px/1 "Schoolbell", sans-serif;
   top: -70px;
   left: 95px;
   transform: rotate(2deg);
   animation-duration: 0.7s;
 }
 .button-parrot .parrot:nth-child(5) {
-  font: 14px/1 'Schoolbell', sans-serif;
+  font: 14px/1 "Schoolbell", sans-serif;
   top: 80px;
   left: 105px;
   transform: rotate(-20deg);
   animation-duration: 0.8s;
 }
 .button-parrot .parrot:nth-child(6) {
-  font: 12px/1 'Schoolbell', sans-serif;
+  font: 12px/1 "Schoolbell", sans-serif;
   top: 80px;
   left: 5px;
   transform: rotate(10deg);
   animation-duration: 1.2s;
 }
 .button-parrot button:hover .parrot:before {
-  content: '!vibe';
+  content: "!vibe";
   width: 70px;
 }
 
@@ -144,6 +144,11 @@ button {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.bottom {
+  position: absolute;
+  bottom: 0;
 }
 
 .amount-input {

@@ -1,7 +1,10 @@
-import { Image, Space } from 'antd';
+import { Image, Space } from "antd";
 
 export function JimPreview({ metadata }) {
-  const ipfsUrl = metadata.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  const ipfsUrl = metadata.image.replace(
+    "ipfs://",
+    "https://gateway.pinata.cloud/ipfs/"
+  );
   return (
     <div>
       <Space size={12}>
