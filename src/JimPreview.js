@@ -3,7 +3,7 @@ import { Image, Space } from "antd";
 export function JimPreview({ metadata }) {
   const ipfsUrl = metadata.image.replace(
     "ipfs://",
-    "https://gateway.pinata.cloud/ipfs/"
+    "https://fingerprints.mypinata.cloud/ipfs/"
   );
   return (
     <div>

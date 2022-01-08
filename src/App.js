@@ -14,7 +14,7 @@ import axios from "axios";
 
 const METADATA_PREFIX = "QmcnnBXi99renVhnr3wX14TEj3k2EiGHFnn1gQGJhZBmeX";
 const getTokenUri = (id) => {
-  return `https://gateway.pinata.cloud/ipfs/${METADATA_PREFIX}/${id}`;
+  return `https://fingerprints.mypinata.cloud/ipfs/${METADATA_PREFIX}/${id}`;
 };
 
 function shortenAddress(address, chars = 4) {
