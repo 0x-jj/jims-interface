@@ -43,8 +43,12 @@ function App() {
           const owned = [1, 65, 123, 999, 48, 12, 412];
           const ownedMetadata = await Promise.all(
             owned.map(async (id) => {
-              const resp = await axios.get(getTokenUri(id));
-              return resp.data;
+              try {
+                const resp = await axios.get(getTokenUri(id));
+                return resp.data;
+              } catch (e) {
+                console.log(e);
+              }
             })
           );
           setJimsOwned(ownedMetadata);
@@ -130,7 +134,7 @@ function App() {
           </p>
           <p className="stroke">Price: 0.069 ETH</p>
           <div style={{ fontSize: "30px" }}>
-            <p className="stroke">Mints remaining: {856}/1526</p>
+            <p className="stroke">Mints remaining: {856}/2048</p>
             <p
               className="stroke"
               style={{
