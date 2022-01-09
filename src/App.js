@@ -7,6 +7,8 @@ import { injected } from "./network/connectors";
 import { useWeb3React } from "@web3-react/core";
 import Web3ReactManager from "./network/Web3Manager";
 import { Contract } from "@ethersproject/contracts";
+import { ethers } from "ethers";
+
 import { ABI, address as mintContractAddress } from "./mintContract";
 import { Drawer } from "antd";
 import { JimPreview } from "./JimPreview";
@@ -30,17 +32,22 @@ function App() {
   const [amountToMint, setAmountToMint] = useState(1);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [jimsOwned, setJimsOwned] = useState([]);
+  const [mintStarted, setMintStarted] = useState(false);
+  const [publicMintStarted, setPublicMintStarted] = useState(false);
 
   useEffect(() => {
     async function fetch() {
       try {
         const contract = new Contract(mintContractAddress, ABI, library);
-        const mintCount = await contract.totalSupply();
+        const mintCount = await contract.totalMinted();
+        const mintStarted = await contract.mintAllowed();
+        const publicMintStarted = await contract.publicSaleStarted();
+        setPublicMintStarted(publicMintStarted);
+        setMintStarted(mintStarted);
         setMintCount(mintCount.toNumber());
 
         if (active) {
-          // const owned = await contract.getJimsOwned(account)
-          const owned = [1, 65, 123, 999, 48, 12, 412];
+          const owned = await contract.allOwned(account);
           const ownedMetadata = await Promise.all(
             owned.map(async (id) => {
               try {
@@ -66,87 +73,110 @@ function App() {
       ABI,
       library.getSigner(account).connectUnchecked()
     );
-    const success = await mintContract.mintApe(amountToMint);
-    return success;
+    try {
+      const success = await mintContract.mint(amountToMint, {
+        value: ethers.utils.parseEther("0.069").mul(amountToMint),
+      });
+      return success;
+    } catch (e) {
+      alert(e.data.message);
+    }
   };
 
   return (
     <Web3ReactManager>
       <div className="App">
-        <div className={"top-right"}>
-          {active && (
+        {mintStarted && (
+          <div className={"top-right"}>
+            {active && (
+              <button
+                className={"view-jims-button"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setDrawerVisible(true);
+                }}
+              >
+                View my Jims
+              </button>
+            )}
+
             <button
-              className={"view-jims-button"}
+              className={"connect-button"}
               onClick={(e) => {
                 e.preventDefault();
-                setDrawerVisible(true);
+                activate(injected);
               }}
             >
-              View my Jims
+              {active ? `Connected: ${shortenAddress(account)}` : "Connect"}
             </button>
-          )}
+          </div>
+        )}
 
-          <button
-            className={"connect-button"}
-            onClick={(e) => {
-              e.preventDefault();
-              activate(injected);
-            }}
-          >
-            {active ? `Connected: ${shortenAddress(account)}` : "Connect"}
-          </button>
-        </div>
         <header
           className="App-header"
           style={{ backgroundImage: `url(${bg})` }}
         >
           <img src={logo} className="App-logo" alt="logo" />
-
-          <div class="item button-parrot">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                if (!active) {
-                  activate(injected);
-                } else {
-                  handleMint();
-                }
-              }}
-            >
-              {active ? "Mint" : "Connect Wallet!"}
-              {Array.from(Array(6)).map((x, i) => {
-                return <div class="stroke parrot"></div>;
-              })}
-            </button>
-          </div>
-          <p>
-            <span>
-              <input
-                className="amount-input"
-                type="number"
-                placeholder="Amount (up to 10)"
-                onChange={(e) => {
-                  e.preventDefault();
-                  setAmountToMint(e.target.value);
-                }}
-              ></input>
-            </span>
-          </p>
-          <p className="stroke">Price: 0.069 ETH</p>
-          <div style={{ fontSize: "30px" }}>
-            <p className="stroke">Mints remaining: {856}/2048</p>
-            <p
-              className="stroke"
-              style={{
-                fontSize: "24px",
-                background: "#1890ff",
-                padding: "0px 6px",
-              }}
-            >
-              Jims is not an investment. This project is a fun,
-              community-building NFT! By minting, you understand this.
-            </p>
-          </div>
+          {!mintStarted && (
+            <div className="stroke">
+              Minting hasn't begun yet, come back later!
+            </div>
+          )}
+          {mintStarted && (
+            <>
+              <div class="item button-parrot">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!active) {
+                      activate(injected);
+                    } else {
+                      handleMint();
+                    }
+                  }}
+                >
+                  {active && publicMintStarted
+                    ? "Mint"
+                    : active && !publicMintStarted
+                    ? "Pre-mint"
+                    : "Connect Wallet!"}
+                  {Array.from(Array(6)).map((x, i) => {
+                    return <div className="stroke parrot"></div>;
+                  })}
+                </button>
+              </div>
+              <p>
+                <span>
+                  <input
+                    className="amount-input"
+                    type="number"
+                    placeholder="Amount"
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setAmountToMint(e.target.value);
+                    }}
+                  ></input>
+                </span>
+              </p>
+              <p className="stroke">Price: 0.069 ETH</p>
+              <div style={{ fontSize: "30px" }}>
+                <p className="stroke">
+                  Mints remaining: {2048 - mintCount}/2048
+                </p>
+                <p
+                  className="stroke"
+                  style={{
+                    fontSize: "24px",
+                    background: "#1890ff",
+                    padding: "0px 6px",
+                  }}
+                >
+                  Jims is not an investment. This project is a fun,
+                  community-building NFT! By minting, you understand this.
+                </p>
+              </div>
+            </>
+          )}
         </header>
         <Drawer
           placement={"left"}
