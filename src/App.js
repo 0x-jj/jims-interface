@@ -37,19 +37,19 @@ function shortenAddress(address, chars = 4) {
 function App() {
   const { activate, active } = useWeb3React();
   const { account, library } = useActiveWeb3React();
-  const [mintCount, setMintCount] = useState(0);
+  const [mintCount, setMintCount] = useState(null);
   const [amountToMint, setAmountToMint] = useState(3);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [jimsOwned, setJimsOwned] = useState([]);
-  const [mintStarted, setMintStarted] = useState(false);
+  const [mintStarted, setMintStarted] = useState(true);
   const [publicMintStarted, setPublicMintStarted] = useState(false);
 
   useEffect(() => {
     async function fetch() {
       try {
         const contract = new Contract(mintContractAddress, ABI, library);
-        const mintCount = await contract.totalSupply();
         const mintStarted = await contract.mintAllowed();
+        const mintCount = await contract.totalSupply();
         const publicMintStarted = await contract.publicSaleStarted();
         setPublicMintStarted(publicMintStarted);
         setMintStarted(mintStarted);
@@ -77,6 +77,10 @@ function App() {
   }, [library, active, account]);
 
   const handleMint = async () => {
+    if (!mintStarted) {
+      openNotification("Minting hasn't started yet!");
+      return;
+    }
     if (active && !publicMintStarted && amountToMint != 1) {
       openNotification("You can only mint 1 Jim in presale");
       return;
@@ -100,7 +104,14 @@ function App() {
         console.log("tx rejected");
         return;
       } else {
-        alert(e);
+        const msg = JSON.stringify(e);
+        if (msg.includes("not eligible")) {
+          openNotification(
+            "Either you are not whitelisted or you have already pre-minted. Come back in a few minutes for the public mint!"
+          );
+        } else {
+          alert(JSON.stringify(e));
+        }
       }
     }
   };
@@ -181,7 +192,7 @@ function App() {
               <p className="stroke">Price: 0.069 ETH</p>
               <div style={{ fontSize: "30px" }}>
                 <p className="stroke">
-                  Mints remaining: {2048 - mintCount}/2048
+                  Mints remaining: {mintCount ? 2048 - mintCount : null}/2048
                 </p>
                 <p
                   className="stroke"
