@@ -77,17 +77,20 @@ function App() {
   }, [library, active, account]);
 
   const handleMint = async () => {
+    if (active && !publicMintStarted && amountToMint != 1) {
+      openNotification("You can only mint 1 Jim in presale");
+      return;
+    } else if (active && publicMintStarted && amountToMint > 20) {
+      openNotification("You can only mint 20 Jims per transaction");
+      return;
+    }
+
     const mintContract = new Contract(
       mintContractAddress,
       ABI,
       library.getSigner(account).connectUnchecked()
     );
     try {
-      if (active && !publicMintStarted && amountToMint != 1) {
-        openNotification("You can only mint 1 Jim in presale");
-        return;
-      }
-
       const success = await mintContract.mint(amountToMint, {
         value: ethers.utils.parseEther("0.069").mul(amountToMint),
       });
@@ -96,20 +99,8 @@ function App() {
       if (e.code == 4001) {
         console.log("tx rejected");
         return;
-      }
-      const msg = e.data.message.split("reason string")[1];
-      if (msg.includes("You are not eligible to pre-mint")) {
-        openNotification(
-          "Either you are not whitelisted or you have already pre-minted. Come back in a few minutes for the public mint!"
-        );
-      } else if (
-        msg.includes("There is a limit on minting too many at a time!")
-      ) {
-        openNotification(
-          "There is a max mint count per transaction! Presale: 1, Public Sale: 20."
-        );
       } else {
-        openNotification(msg);
+        alert(e);
       }
     }
   };
