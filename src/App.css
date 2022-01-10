@@ -3,6 +3,7 @@
   font-family: "Schoolbell";
 }
 
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -10,7 +11,7 @@
 }
 
 .App-header {
-  background-color: #e17b6c;
+  background: url("./jimsbg.jpg");
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -68,12 +69,18 @@ button {
   transform: rotate(-20deg);
   animation-duration: 0.5s;
 }
+.button-parrot .parrot:nth-child(1):before {
+  content: "!jims";
+}
 .button-parrot .parrot:nth-child(2) {
   font: 12px/1 "Schoolbell", sans-serif;
   right: -40px;
   top: -20px;
   transform: rotate(15deg);
   animation-duration: 0.3s;
+}
+.button-parrot .parrot:nth-child(5):before {
+  content: "!jims";
 }
 .button-parrot .parrot:nth-child(3) {
   font: 16px/1 "Schoolbell", sans-serif;
@@ -89,12 +96,16 @@ button {
   transform: rotate(2deg);
   animation-duration: 0.7s;
 }
+
 .button-parrot .parrot:nth-child(5) {
   font: 14px/1 "Schoolbell", sans-serif;
   top: 80px;
   left: 105px;
   transform: rotate(-20deg);
   animation-duration: 0.8s;
+}
+.button-parrot .parrot:nth-child(4):before {
+  content: "!jims";
 }
 .button-parrot .parrot:nth-child(6) {
   font: 12px/1 "Schoolbell", sans-serif;
@@ -177,3 +188,4 @@ body {
 .anticon.anticon-eye {
   margin-right: 4px;
 }
+

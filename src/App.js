@@ -1,5 +1,4 @@
 import logo from "./jimlogo.png";
-import bg from "./jimsbg.jpg";
 import "./App.css";
 import { useEffect, useState } from "react";
 import { useActiveWeb3React } from "./network/connectors";
@@ -10,9 +9,19 @@ import { Contract } from "@ethersproject/contracts";
 import { ethers } from "ethers";
 
 import { ABI, address as mintContractAddress } from "./mintContract";
-import { Drawer } from "antd";
+import { Drawer, notification } from "antd";
 import { JimPreview } from "./JimPreview";
 import axios from "axios";
+
+const openNotification = (content) => {
+  notification.error({
+    message: `Error`,
+    description: content,
+    placement: "topLeft",
+    className: "notif",
+    duration: 10,
+  });
+};
 
 const METADATA_PREFIX = "QmcnnBXi99renVhnr3wX14TEj3k2EiGHFnn1gQGJhZBmeX";
 const getTokenUri = (id) => {
@@ -29,7 +38,7 @@ function App() {
   const { activate, active } = useWeb3React();
   const { account, library } = useActiveWeb3React();
   const [mintCount, setMintCount] = useState(0);
-  const [amountToMint, setAmountToMint] = useState(1);
+  const [amountToMint, setAmountToMint] = useState(3);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [jimsOwned, setJimsOwned] = useState([]);
   const [mintStarted, setMintStarted] = useState(false);
@@ -39,7 +48,7 @@ function App() {
     async function fetch() {
       try {
         const contract = new Contract(mintContractAddress, ABI, library);
-        const mintCount = await contract.totalMinted();
+        const mintCount = await contract.totalSupply();
         const mintStarted = await contract.mintAllowed();
         const publicMintStarted = await contract.publicSaleStarted();
         setPublicMintStarted(publicMintStarted);
@@ -65,7 +74,7 @@ function App() {
       }
     }
     fetch();
-  }, [library, active]);
+  }, [library, active, account]);
 
   const handleMint = async () => {
     const mintContract = new Contract(
@@ -74,12 +83,34 @@ function App() {
       library.getSigner(account).connectUnchecked()
     );
     try {
+      if (active && !publicMintStarted && amountToMint != 1) {
+        openNotification("You can only mint 1 Jim in presale");
+        return;
+      }
+
       const success = await mintContract.mint(amountToMint, {
         value: ethers.utils.parseEther("0.069").mul(amountToMint),
       });
       return success;
     } catch (e) {
-      alert(e.data.message);
+      if (e.code == 4001) {
+        console.log("tx rejected");
+        return;
+      }
+      const msg = e.data.message.split("reason string")[1];
+      if (msg.includes("You are not eligible to pre-mint")) {
+        openNotification(
+          "Either you are not whitelisted or you have already pre-minted. Come back in a few minutes for the public mint!"
+        );
+      } else if (
+        msg.includes("There is a limit on minting too many at a time!")
+      ) {
+        openNotification(
+          "There is a max mint count per transaction! Presale: 1, Public Sale: 20."
+        );
+      } else {
+        openNotification(msg);
+      }
     }
   };
 
@@ -112,10 +143,7 @@ function App() {
           </div>
         )}
 
-        <header
-          className="App-header"
-          style={{ backgroundImage: `url(${bg})` }}
-        >
+        <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           {!mintStarted && (
             <div className="stroke">
@@ -151,6 +179,7 @@ function App() {
                     className="amount-input"
                     type="number"
                     placeholder="Amount"
+                    defaultValue={3}
                     onChange={(e) => {
                       e.preventDefault();
                       setAmountToMint(e.target.value);
@@ -171,8 +200,9 @@ function App() {
                     padding: "0px 6px",
                   }}
                 >
-                  Jims is not an investment. This project is a fun,
-                  community-building NFT! By minting, you understand this.
+                  Jims is not an investment. This is a fun, non-speculative
+                  profile picture project! By FingerprintsDAO and Gremplin. CC0.
+                  By minting, you understand this.
                 </p>
               </div>
             </>
