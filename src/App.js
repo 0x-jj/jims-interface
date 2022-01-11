@@ -23,7 +23,7 @@ const openNotification = (content) => {
   });
 };
 
-const METADATA_PREFIX = "QmPjdFJmNixpwgxXG7Z9a98p3DQwYwx5nE5utcAYhGbzjb";
+const METADATA_PREFIX = "Qmf3yLqLE2DwpvN4MmPyy7bkCGXZFzf8EJPRoYiebJN96X";
 const getTokenUri = (id) => {
   return `https://fingerprints.mypinata.cloud/ipfs/${METADATA_PREFIX}/${id}`;
 };

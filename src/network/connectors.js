@@ -19,9 +19,9 @@ export const network = new NetworkConnector({
 
 export const injected = new InjectedConnector({
   supportedChainIds: [
-    // 1, // Mainet
-    4, // Rinkeby
-    1337, // LOCAL TESTING
+    1, // Mainnet
+    // 4, // Rinkeby
+    // 1337, // LOCAL TESTING
   ],
 });
 
