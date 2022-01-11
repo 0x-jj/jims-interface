@@ -23,7 +23,7 @@ const openNotification = (content) => {
   });
 };
 
-const METADATA_PREFIX = "QmcnnBXi99renVhnr3wX14TEj3k2EiGHFnn1gQGJhZBmeX";
+const METADATA_PREFIX = "QmPjdFJmNixpwgxXG7Z9a98p3DQwYwx5nE5utcAYhGbzjb";
 const getTokenUri = (id) => {
   return `https://fingerprints.mypinata.cloud/ipfs/${METADATA_PREFIX}/${id}`;
 };
@@ -147,68 +147,62 @@ function App() {
 
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          {!mintStarted && (
-            <div className="stroke">
-              Minting hasn't begun yet, come back later!
+          <>
+            <div class="item button-parrot">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!active) {
+                    activate(injected);
+                  } else {
+                    handleMint();
+                  }
+                }}
+              >
+                {active && publicMintStarted
+                  ? "Mint"
+                  : active && !publicMintStarted
+                  ? "Pre-mint"
+                  : "Connect Wallet!"}
+                {Array.from(Array(6)).map((x, i) => {
+                  return <div className="stroke parrot"></div>;
+                })}
+              </button>
             </div>
-          )}
-          {mintStarted && (
-            <>
-              <div class="item button-parrot">
-                <button
-                  onClick={(e) => {
+            <p>
+              <span>
+                <input
+                  className="amount-input"
+                  type="number"
+                  placeholder="Amount"
+                  defaultValue={3}
+                  onChange={(e) => {
                     e.preventDefault();
-                    if (!active) {
-                      activate(injected);
-                    } else {
-                      handleMint();
-                    }
+                    setAmountToMint(e.target.value);
                   }}
-                >
-                  {active && publicMintStarted
-                    ? "Mint"
-                    : active && !publicMintStarted
-                    ? "Pre-mint"
-                    : "Connect Wallet!"}
-                  {Array.from(Array(6)).map((x, i) => {
-                    return <div className="stroke parrot"></div>;
-                  })}
-                </button>
-              </div>
-              <p>
-                <span>
-                  <input
-                    className="amount-input"
-                    type="number"
-                    placeholder="Amount"
-                    defaultValue={3}
-                    onChange={(e) => {
-                      e.preventDefault();
-                      setAmountToMint(e.target.value);
-                    }}
-                  ></input>
-                </span>
+                ></input>
+              </span>
+            </p>
+            <p className="stroke">Price: 0.069 ETH</p>
+            <div style={{ fontSize: "30px" }}>
+              <p className="stroke">
+                Mints remaining: {mintCount !== null ? 2048 - mintCount : null}
+                /2048
               </p>
-              <p className="stroke">Price: 0.069 ETH</p>
-              <div style={{ fontSize: "30px" }}>
-                <p className="stroke">
-                  Mints remaining: {mintCount ? 2048 - mintCount : null}/2048
-                </p>
-                <p
-                  className="stroke"
-                  style={{
-                    fontSize: "24px",
-                    background: "#1890ff",
-                    padding: "0px 6px",
-                  }}
-                >
-                  Jims is not an investment. This is a fun, non-speculative
-                  profile picture project! By FingerprintsDAO and Gremplin. CC0.
-                  By minting, you understand this.
-                </p>
-              </div>
-            </>
-          )}
+              <p
+                className="stroke"
+                style={{
+                  fontSize: "24px",
+                  background: "#1890ff",
+                  padding: "0px 6px",
+                }}
+              >
+                Jims is not an investment. This is a fun, non-speculative
+                profile picture project! By FingerprintsDAO and Gremplin. CC0.
+                By minting, you understand this.
+              </p>
+            </div>
+          </>
         </header>
         <Drawer
           placement={"left"}
