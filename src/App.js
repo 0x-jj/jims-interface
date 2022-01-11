@@ -38,7 +38,7 @@ function App() {
   const { activate, active } = useWeb3React();
   const { account, library } = useActiveWeb3React();
   const [mintCount, setMintCount] = useState(null);
-  const [amountToMint, setAmountToMint] = useState(3);
+  const [amountToMint, setAmountToMint] = useState(0);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [jimsOwned, setJimsOwned] = useState([]);
   const [mintStarted, setMintStarted] = useState(true);
@@ -77,9 +77,14 @@ function App() {
   }, [library, active, account]);
 
   const handleMint = async () => {
+
     if (!mintStarted) {
       openNotification("Minting hasn't started yet!");
       return;
+    }
+    if (!amountToMint){
+      openNotification("Please enter an amount of Jims to mint!")
+      return
     }
     if (active && !publicMintStarted && amountToMint != 1) {
       openNotification("You can only mint 1 Jim in presale");
@@ -119,7 +124,7 @@ function App() {
   return (
     <Web3ReactManager>
       <div className="App">
-        {mintStarted && (
+        
           <div className={"top-right"}>
             {active && (
               <button
@@ -143,7 +148,7 @@ function App() {
               {active ? `Connected: ${shortenAddress(account)}` : "Connect"}
             </button>
           </div>
-        )}
+        
 
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
@@ -175,7 +180,6 @@ function App() {
                   className="amount-input"
                   type="number"
                   placeholder="Amount"
-                  defaultValue={3}
                   onChange={(e) => {
                     e.preventDefault();
                     setAmountToMint(e.target.value);
@@ -192,7 +196,7 @@ function App() {
               <p
                 className="stroke"
                 style={{
-                  fontSize: "24px",
+                  fontSize: "16px",
                   background: "#1890ff",
                   padding: "0px 6px",
                 }}
